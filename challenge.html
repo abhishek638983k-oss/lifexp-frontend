@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeXP | Challenges</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="logo" href="dashboard.html">LifeXP</a>
+      <nav class="nav-list" aria-label="Main navigation">
+        <a class="nav-item" href="dashboard.html">Dashboard</a>
+        <a class="nav-item active" href="challenge.html">Challenges</a>
+        <a class="nav-item" href="leaderboard.html">Leaderboard</a>
+        <a class="nav-item" href="friends.html">Friends</a>
+        <a class="nav-item" href="admin.html">Admin</a>
+      </nav>
+      <button class="btn ghost full-width" id="logoutBtn">Logout</button>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Challenges</p>
+          <h1>Choose Your Quest</h1>
+        </div>
+        <div class="user-pill">
+          <span id="usernameDisplay">Player</span>
+          <small><span id="xpDisplay">0</span> XP • Level <span id="levelDisplay">1</span></small>
+        </div>
+      </header>
+
+      <section class="challenge-console">
+        <div class="control-grid">
+          <fieldset class="category-checks">
+            <legend>Categories</legend>
+            <label><input type="checkbox" name="challengeCategory" value="coding" checked> Coding</label>
+            <label><input type="checkbox" name="challengeCategory" value="fitness"> Fitness</label>
+            <label><input type="checkbox" name="challengeCategory" value="study"> Study</label>
+            <label><input type="checkbox" name="challengeCategory" value="health"> Health</label>
+            <label><input type="checkbox" name="challengeCategory" value="career"> Career</label>
+            <label><input type="checkbox" name="challengeCategory" value="creativity"> Creativity</label>
+            <label><input type="checkbox" name="challengeCategory" value="mindfulness"> Mindfulness</label>
+            <label><input type="checkbox" name="challengeCategory" value="finance"> Finance</label>
+            <label><input type="checkbox" name="challengeCategory" value="communication"> Communication</label>
+            <label><input type="checkbox" name="challengeCategory" value="household"> Household</label>
+          </fieldset>
+
+          <label>
+            Difficulty
+            <select id="challengeDifficulty">
+              <option value="">Any</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+
+          <div class="mode-switch" role="group" aria-label="Challenge mode">
+            <button class="mode-btn active" type="button" data-mode="static">Static</button>
+            <button class="mode-btn" type="button" data-mode="rapid">Rapid</button>
+          </div>
+        </div>
+
+        <div class="challenge-panel no-shadow">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow" id="challengeModeLabel">Static Mode</p>
+              <h2 id="challengePageTitle">Random Stored Challenge</h2>
+            </div>
+            <span class="difficulty-badge" id="difficultyBadge">Ready</span>
+          </div>
+
+          <div id="challengeEmpty" class="empty-state">
+            <h3>No challenge loaded</h3>
+            <p>Pick category, difficulty, and mode. Static uses stored DB challenges. Rapid creates a new timed challenge.</p>
+          </div>
+
+          <div id="challengeCard" class="challenge-card hidden">
+            <h3 id="challengeTitle">Challenge title</h3>
+            <p id="challengeMeta">Category • XP</p>
+            <p id="challengeDescription" class="challenge-description"></p>
+            <p id="attemptTimer" class="attempt-timer"></p>
+          </div>
+
+          <label class="proof-field" for="proofNote">
+            Proof note
+            <textarea id="proofNote" placeholder="What did you finish? Example: solved two-pointer array problem and wrote the approach."></textarea>
+          </label>
+
+          <div class="button-row">
+            <button class="btn primary" id="getPageChallengeBtn">Get Challenge</button>
+            <button class="btn success" id="completeChallengeBtn" disabled>Complete Challenge</button>
+          </div>
+          <p id="challengeMessage" class="message" role="status"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

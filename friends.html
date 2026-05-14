@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeXP | Friends</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="logo" href="dashboard.html">LifeXP</a>
+      <nav class="nav-list" aria-label="Main navigation">
+        <a class="nav-item" href="dashboard.html">Dashboard</a>
+        <a class="nav-item" href="challenge.html">Challenges</a>
+        <a class="nav-item" href="leaderboard.html">Leaderboard</a>
+        <a class="nav-item active" href="friends.html">Friends</a>
+        <a class="nav-item" href="admin.html">Admin</a>
+      </nav>
+      <button class="btn ghost full-width" id="logoutBtn">Logout</button>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Friends</p>
+          <h1>Build Your Party</h1>
+        </div>
+        <div class="user-pill">
+          <span>Your ID</span>
+          <small id="friendPageUserId">...</small>
+        </div>
+      </header>
+
+      <section class="friends-grid">
+        <article class="form-panel">
+          <h2>Add Friend</h2>
+          <form id="sendFriendForm" class="form-stack">
+            <label for="sendFriendUsername">Friend username</label>
+            <input id="sendFriendUsername" type="text" placeholder="Enter username" required>
+            <button class="btn primary" type="submit">Send Request</button>
+          </form>
+        </article>
+
+        <article class="form-panel">
+          <div class="section-heading">
+            <h2>Requests</h2>
+            <button class="btn secondary compact-btn" id="refreshFriendsBtn">Refresh</button>
+          </div>
+          <div id="requestList" class="simple-list"></div>
+        </article>
+      </section>
+      <p id="friendsMessage" class="message" role="status"></p>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

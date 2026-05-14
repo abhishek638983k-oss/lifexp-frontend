@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeXP | Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="brand-panel">
+      <p class="eyebrow">LifeXP</p>
+      <h1>Level up real life.</h1>
+      <p class="brand-copy">Pick a category, complete challenges, earn XP, and keep your daily streak alive.</p>
+      <div class="preview-stats" aria-label="LifeXP stats preview">
+        <div>
+          <span>3</span>
+          <small>Categories</small>
+        </div>
+        <div>
+          <span>XP</span>
+          <small>Progress</small>
+        </div>
+        <div>
+          <span>Top 10</span>
+          <small>Leaderboard</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="authTitle">
+      <h2 id="authTitle">Welcome Back</h2>
+      <p class="muted">Sign in or create a new LifeXP account.</p>
+
+      <form id="authForm" class="form-stack">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" placeholder="Enter username" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
+
+        <div class="button-row">
+          <button class="btn primary" type="submit" data-action="login">Login</button>
+          <button class="btn secondary" type="button" id="signupBtn">Signup</button>
+        </div>
+      </form>
+
+      <p id="authMessage" class="message" role="status"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
