@@ -580,6 +580,61 @@ textarea {
   margin-top: 28px;
 }
 
+.admin-access-panel {
+  margin-top: 28px;
+}
+
+.admin-secret-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.4fr) minmax(220px, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.admin-tab {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  min-height: 40px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.admin-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #061410;
+}
+
+.admin-module {
+  display: none;
+}
+
+.admin-module.active {
+  display: block;
+}
+
+.admin-search {
+  max-width: 260px;
+  min-width: 180px;
+}
+
+.admin-filter-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .admin-wide {
   margin-top: 14px;
 }
@@ -697,6 +752,22 @@ textarea {
 
   .control-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-secret-row {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-search,
+  .admin-filter-row,
+  .admin-filter-row select {
+    width: 100%;
+    max-width: none;
   }
 
   .category-checks,

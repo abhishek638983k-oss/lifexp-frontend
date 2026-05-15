@@ -618,11 +618,46 @@ function initAdminPage() {
   const attemptsBox = document.getElementById("adminAttempts");
   const challengesBox = document.getElementById("adminChallenges");
   const challengeForm = document.getElementById("adminChallengeForm");
+  const geminiForm = document.getElementById("geminiChallengeForm");
 
-  if (!secretForm || !statsBox || !usersBox || !attemptsBox || !challengesBox || !challengeForm) return;
+  if (!secretForm || !statsBox || !usersBox || !attemptsBox || !challengesBox || !challengeForm || !geminiForm) return;
 
   const secretInput = document.getElementById("adminSecret");
   secretInput.value = getAdminSecret();
+  const adminState = {
+    usersSearch: "",
+    challengesSearch: "",
+    attemptsSearch: "",
+    attemptsStatus: ""
+  };
+
+  const debounce = (fn, wait = 350) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), wait);
+    };
+  };
+
+  const queryString = (params) => {
+    const search = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) search.set(key, value);
+    });
+    const text = search.toString();
+    return text ? `?${text}` : "";
+  };
+
+  function bindAdminTabs() {
+    document.querySelectorAll(".admin-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".admin-tab").forEach((item) => item.classList.toggle("active", item === tab));
+        document.querySelectorAll(".admin-module").forEach((panel) => {
+          panel.classList.toggle("active", panel.dataset.adminPanel === tab.dataset.adminTab);
+        });
+      });
+    });
+  }
 
   async function loadAdmin() {
     if (!getAdminSecret()) {
@@ -634,9 +669,9 @@ function initAdminPage() {
       setMessage("adminMessage", "Loading admin data...");
       const [stats, users, attempts, challenges] = await Promise.all([
         adminRequest("/api/admin/stats", { method: "GET" }),
-        adminRequest("/api/admin/users", { method: "GET" }),
-        adminRequest("/api/admin/attempts", { method: "GET" }),
-        apiRequest("/api/challenge/list", { method: "GET" })
+        adminRequest(`/api/admin/users${queryString({ search: adminState.usersSearch })}`, { method: "GET" }),
+        adminRequest(`/api/admin/attempts${queryString({ search: adminState.attemptsSearch, status: adminState.attemptsStatus })}`, { method: "GET" }),
+        adminRequest(`/api/admin/challenges${queryString({ search: adminState.challengesSearch })}`, { method: "GET" })
       ]);
 
       statsBox.innerHTML = `
@@ -664,11 +699,19 @@ function initAdminPage() {
           <div>
             <strong>${escapeHTML(attempt.challenge?.title || "Unknown challenge")}</strong>
             <small>${escapeHTML(attempt.user?.username || "Unknown user")} • ${escapeHTML(attempt.status)} • ${attempt.xp ?? 0} XP</small>
+            <small>${escapeHTML(attempt.proofFeedback || "No proof feedback yet")}</small>
+            ${attempt.proofImageDataUrl ? `<img class="proof-thumb" src="${attempt.proofImageDataUrl}" alt="Proof photo">` : ""}
+          </div>
+          <div class="inline-actions">
+            ${attempt.status === "pending_review" ? `
+              <button class="btn success compact-btn" data-attempt-approve="${attempt._id}">Approve</button>
+              <button class="btn danger compact-btn" data-attempt-reject="${attempt._id}">Reject</button>
+            ` : ""}
           </div>
         </div>
       `).join("") || `<div class="simple-row"><span>No attempts yet</span></div>`;
 
-      challengesBox.innerHTML = challenges.slice(0, 80).map((challenge) => `
+      challengesBox.innerHTML = challenges.slice(0, 120).map((challenge) => `
         <div class="simple-row">
           <div>
             <strong>${escapeHTML(challenge.title)}</strong>
@@ -688,6 +731,24 @@ function initAdminPage() {
     event.preventDefault();
     localStorage.setItem("adminSecret", secretInput.value.trim());
     await loadAdmin();
+  });
+
+  const debouncedLoadAdmin = debounce(loadAdmin);
+  document.getElementById("adminUserSearch")?.addEventListener("input", (event) => {
+    adminState.usersSearch = event.target.value.trim();
+    debouncedLoadAdmin();
+  });
+  document.getElementById("adminChallengeSearch")?.addEventListener("input", (event) => {
+    adminState.challengesSearch = event.target.value.trim();
+    debouncedLoadAdmin();
+  });
+  document.getElementById("adminAttemptSearch")?.addEventListener("input", (event) => {
+    adminState.attemptsSearch = event.target.value.trim();
+    debouncedLoadAdmin();
+  });
+  document.getElementById("adminAttemptStatus")?.addEventListener("change", (event) => {
+    adminState.attemptsStatus = event.target.value;
+    loadAdmin();
   });
 
   challengeForm.addEventListener("submit", async (event) => {
@@ -757,8 +818,80 @@ function initAdminPage() {
     }
   });
 
+  attemptsBox.addEventListener("click", async (event) => {
+    const approveBtn = event.target.closest("[data-attempt-approve]");
+    const rejectBtn = event.target.closest("[data-attempt-reject]");
+
+    try {
+      if (approveBtn) {
+        await adminRequest(`/api/admin/attempts/${approveBtn.dataset.attemptApprove}/approve`, {
+          method: "POST",
+          body: JSON.stringify({ feedback: "Approved from admin panel." })
+        });
+        setMessage("adminMessage", "Attempt approved and XP awarded.", "success-text");
+        await loadAdmin();
+      }
+
+      if (rejectBtn) {
+        await adminRequest(`/api/admin/attempts/${rejectBtn.dataset.attemptReject}/reject`, {
+          method: "POST",
+          body: JSON.stringify({ feedback: "Rejected from admin panel." })
+        });
+        setMessage("adminMessage", "Attempt rejected.", "success-text");
+        await loadAdmin();
+      }
+    } catch (error) {
+      setMessage("adminMessage", error.message, "error");
+    }
+  });
+
+  geminiForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const ideasBox = document.getElementById("geminiIdeas");
+
+    try {
+      setMessage("adminMessage", "Asking Gemini for challenge ideas...");
+      const data = await adminRequest("/api/admin/challenges/generate", {
+        method: "POST",
+        body: JSON.stringify({
+          category: document.getElementById("geminiCategory").value,
+          difficulty: document.getElementById("geminiDifficulty").value,
+          count: 5
+        })
+      });
+
+      ideasBox.innerHTML = data.ideas.map((idea) => `
+        <div class="simple-row">
+          <div>
+            <strong>${escapeHTML(idea.title)}</strong>
+            <small>${escapeHTML(idea.description || "")}</small>
+            <small>${idea.estimatedMinutes || 10} min</small>
+          </div>
+          <button class="btn success compact-btn"
+            data-gemini-add="${escapeHTML(idea.title)}"
+            data-gemini-description="${escapeHTML(idea.description || "")}">
+            Use
+          </button>
+        </div>
+      `).join("") || `<div class="simple-row"><span>No ideas returned</span></div>`;
+      setMessage("adminMessage", "Gemini ideas loaded.", "success-text");
+    } catch (error) {
+      setMessage("adminMessage", error.message, "error");
+    }
+  });
+
+  document.getElementById("geminiIdeas")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-gemini-add]");
+    if (!button) return;
+    document.getElementById("adminChallengeTitle").value = button.dataset.geminiAdd;
+    document.getElementById("adminChallengeDescription").value = button.dataset.geminiDescription;
+    document.getElementById("adminChallengeCategory").value = document.getElementById("geminiCategory").value;
+    document.getElementById("adminChallengeDifficulty").value = document.getElementById("geminiDifficulty").value;
+    document.querySelector('[data-admin-tab="challenges"]')?.click();
+  });
+
   document.getElementById("refreshAdminBtn")?.addEventListener("click", loadAdmin);
-  document.getElementById("refreshChallengesBtn")?.addEventListener("click", loadAdmin);
+  bindAdminTabs();
   if (getAdminSecret()) loadAdmin();
 }
 

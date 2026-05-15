@@ -28,75 +28,126 @@
         </div>
       </header>
 
-      <section class="admin-grid">
-        <article class="form-panel">
-          <h2>Access</h2>
-          <form id="adminSecretForm" class="form-stack">
-            <label for="adminSecret">Admin secret</label>
-            <input id="adminSecret" type="password" placeholder="Set ADMIN_SECRET in backend .env" required>
-            <button class="btn primary" type="submit">Unlock Admin</button>
-          </form>
-        </article>
+      <section class="form-panel admin-access-panel">
+        <form id="adminSecretForm" class="admin-secret-row">
+          <label for="adminSecret">Admin secret</label>
+          <input id="adminSecret" type="password" placeholder="Set ADMIN_SECRET in backend .env" required>
+          <button class="btn primary" type="submit">Unlock</button>
+          <button class="btn secondary" type="button" id="refreshAdminBtn">Refresh</button>
+        </form>
+      </section>
 
+      <nav class="admin-tabs" aria-label="Admin sections">
+        <button class="admin-tab active" type="button" data-admin-tab="overview">Overview</button>
+        <button class="admin-tab" type="button" data-admin-tab="users">Users</button>
+        <button class="admin-tab" type="button" data-admin-tab="challenges">Challenges</button>
+        <button class="admin-tab" type="button" data-admin-tab="attempts">Attempts</button>
+        <button class="admin-tab" type="button" data-admin-tab="ai">AI Tools</button>
+      </nav>
+
+      <section class="admin-module active" data-admin-panel="overview">
         <article class="form-panel">
           <h2>Stats</h2>
           <div id="adminStats" class="stats-mini"></div>
         </article>
       </section>
 
-      <section class="admin-grid">
+      <section class="admin-module" data-admin-panel="users">
         <article class="form-panel">
-          <h2>Add Challenge</h2>
-          <form id="adminChallengeForm" class="form-stack">
-            <label for="adminChallengeTitle">Title</label>
-            <input id="adminChallengeTitle" required>
-            <label for="adminChallengeCategory">Category</label>
-            <select id="adminChallengeCategory">
+          <div class="section-heading">
+            <h2>Users</h2>
+            <input class="admin-search" id="adminUserSearch" placeholder="Search users">
+          </div>
+          <div id="adminUsers" class="simple-list"></div>
+        </article>
+      </section>
+
+      <section class="admin-module" data-admin-panel="challenges">
+        <div class="admin-grid">
+          <article class="form-panel">
+            <h2>Add Challenge</h2>
+            <form id="adminChallengeForm" class="form-stack">
+              <label for="adminChallengeTitle">Title</label>
+              <input id="adminChallengeTitle" required>
+              <label for="adminChallengeCategory">Category</label>
+              <select id="adminChallengeCategory">
+                <option value="coding">Coding</option>
+                <option value="fitness">Fitness</option>
+                <option value="study">Study</option>
+                <option value="health">Health</option>
+                <option value="career">Career</option>
+                <option value="creativity">Creativity</option>
+                <option value="mindfulness">Mindfulness</option>
+                <option value="finance">Finance</option>
+                <option value="communication">Communication</option>
+                <option value="household">Household</option>
+              </select>
+              <label for="adminChallengeDifficulty">Difficulty</label>
+              <select id="adminChallengeDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <label for="adminChallengeXp">XP</label>
+              <input id="adminChallengeXp" type="number" min="1" value="25" required>
+              <label for="adminChallengeDescription">Description</label>
+              <textarea id="adminChallengeDescription"></textarea>
+              <button class="btn success" type="submit">Add Challenge</button>
+            </form>
+          </article>
+
+          <article class="form-panel">
+            <div class="section-heading">
+              <h2>Challenges</h2>
+              <input class="admin-search" id="adminChallengeSearch" placeholder="Search challenges">
+            </div>
+            <div id="adminChallenges" class="simple-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-module" data-admin-panel="attempts">
+        <article class="form-panel">
+          <div class="section-heading">
+            <h2>Recent Attempts</h2>
+            <div class="admin-filter-row">
+              <input class="admin-search" id="adminAttemptSearch" placeholder="Search attempts">
+              <select id="adminAttemptStatus">
+                <option value="">All</option>
+                <option value="pending_review">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+                <option value="active">Active</option>
+              </select>
+            </div>
+          </div>
+          <div id="adminAttempts" class="simple-list"></div>
+        </article>
+      </section>
+
+      <section class="admin-module" data-admin-panel="ai">
+        <article class="form-panel">
+          <h2>Gemini Challenge Generator</h2>
+          <form id="geminiChallengeForm" class="form-stack">
+            <label for="geminiCategory">Category</label>
+            <select id="geminiCategory">
               <option value="coding">Coding</option>
               <option value="fitness">Fitness</option>
               <option value="study">Study</option>
               <option value="health">Health</option>
               <option value="career">Career</option>
               <option value="creativity">Creativity</option>
-              <option value="mindfulness">Mindfulness</option>
-              <option value="finance">Finance</option>
-              <option value="communication">Communication</option>
-              <option value="household">Household</option>
             </select>
-            <label for="adminChallengeDifficulty">Difficulty</label>
-            <select id="adminChallengeDifficulty">
+            <label for="geminiDifficulty">Difficulty</label>
+            <select id="geminiDifficulty">
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
             </select>
-            <label for="adminChallengeXp">XP</label>
-            <input id="adminChallengeXp" type="number" min="1" value="25" required>
-            <label for="adminChallengeDescription">Description</label>
-            <textarea id="adminChallengeDescription"></textarea>
-            <button class="btn success" type="submit">Add Challenge</button>
+            <button class="btn primary" type="submit">Generate Ideas</button>
           </form>
+          <div id="geminiIdeas" class="simple-list"></div>
         </article>
-
-        <article class="form-panel">
-          <div class="section-heading">
-            <h2>Users</h2>
-            <button class="btn secondary compact-btn" id="refreshAdminBtn">Refresh</button>
-          </div>
-          <div id="adminUsers" class="simple-list"></div>
-        </article>
-      </section>
-
-      <section class="form-panel admin-wide">
-        <div class="section-heading">
-          <h2>Challenges</h2>
-          <button class="btn secondary compact-btn" id="refreshChallengesBtn">Refresh</button>
-        </div>
-        <div id="adminChallenges" class="simple-list"></div>
-      </section>
-
-      <section class="form-panel admin-wide">
-        <h2>Recent Attempts</h2>
-        <div id="adminAttempts" class="simple-list"></div>
       </section>
 
       <p id="adminMessage" class="message" role="status"></p>

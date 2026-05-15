@@ -105,6 +105,17 @@ ADMIN_SECRET=choose-a-long-private-secret
 
 The admin page sends this value as `x-admin-secret` and lets you monitor stats, delete users, add/delete challenges, and inspect recent attempts.
 
+## Gemini
+
+Set these in the backend environment to enable Gemini proof review and admin challenge generation:
+
+```text
+GEMINI_API_KEY=your-google-ai-studio-api-key
+GEMINI_MODEL=gemini-1.5-flash
+```
+
+The API key stays on the backend. The frontend calls your backend, and your backend calls Gemini through the official `generateContent` REST API.
+
 ## Local Backend Testing
 
 By default the frontend uses:
