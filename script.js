@@ -75,6 +75,38 @@ function getAdminSecret() {
   return localStorage.getItem("adminSecret") || "";
 }
 
+function imageFileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error("Upload a proof photo before completing."));
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      reject(new Error("Proof photo must be JPG, PNG, or WEBP."));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxSide = 900;
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.76));
+      };
+      img.onerror = () => reject(new Error("Could not read proof photo."));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("Could not read proof photo."));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function apiRequest(path, options = {}) {
   const headers = {
     "Content-Type": "application/json",
@@ -385,6 +417,10 @@ function initChallengePage() {
   const difficultySelect = document.getElementById("challengeDifficulty");
   const modeLabel = document.getElementById("challengeModeLabel");
   const pageTitle = document.getElementById("challengePageTitle");
+  const selectAllCategories = document.getElementById("selectAllCategories");
+  const categoryInputs = [...document.querySelectorAll('input[name="challengeCategory"]')];
+  const proofPhoto = document.getElementById("proofPhoto");
+  const proofPhotoName = document.getElementById("proofPhotoName");
 
   function selectedCategories() {
     return [...document.querySelectorAll('input[name="challengeCategory"]:checked')]
@@ -414,6 +450,29 @@ function initChallengePage() {
 
   document.querySelectorAll(".mode-btn").forEach((button) => {
     button.addEventListener("click", () => setMode(button.dataset.mode));
+  });
+
+  function syncSelectAllState() {
+    if (!selectAllCategories) return;
+    const checkedCount = categoryInputs.filter((input) => input.checked).length;
+    selectAllCategories.checked = checkedCount === categoryInputs.length;
+    selectAllCategories.indeterminate = checkedCount > 0 && checkedCount < categoryInputs.length;
+  }
+
+  selectAllCategories?.addEventListener("change", () => {
+    categoryInputs.forEach((input) => {
+      input.checked = selectAllCategories.checked;
+    });
+    syncSelectAllState();
+  });
+
+  categoryInputs.forEach((input) => {
+    input.addEventListener("change", syncSelectAllState);
+  });
+
+  proofPhoto?.addEventListener("change", () => {
+    const file = proofPhoto.files?.[0];
+    proofPhotoName.textContent = file ? file.name : "JPG, PNG, or WEBP. Camera opens on supported phones.";
   });
 
   getBtn.addEventListener("click", async () => {
@@ -452,11 +511,13 @@ function initChallengePage() {
 
     try {
       setMessage("challengeMessage", "Submitting completion...");
+      const proofImageDataUrl = await imageFileToDataUrl(proofPhoto?.files?.[0]);
       const data = await apiRequest("/api/challenge/complete", {
         method: "POST",
         body: JSON.stringify({
           attemptId: currentAttempt._id,
-          proofNote: document.getElementById("proofNote")?.value.trim() || ""
+          proofNote: document.getElementById("proofNote")?.value.trim() || "",
+          proofImageDataUrl
         })
       });
       storage.updateUser(data.user);
@@ -465,9 +526,11 @@ function initChallengePage() {
       currentAttempt = null;
       localStorage.removeItem("challengePageCurrent");
       document.getElementById("proofNote").value = "";
+      if (proofPhoto) proofPhoto.value = "";
+      if (proofPhotoName) proofPhotoName.textContent = "JPG, PNG, or WEBP. Camera opens on supported phones.";
       renderChallenge(null);
       if (timerId) clearInterval(timerId);
-      setMessage("challengeMessage", "Challenge completed. XP added.", "success-text");
+      setMessage("challengeMessage", data.message || "Proof submitted.", "success-text");
     } catch (error) {
       setMessage("challengeMessage", error.message, "error");
     }
@@ -487,6 +550,7 @@ function initChallengePage() {
 
   renderChallenge(currentChallenge);
   if (currentAttempt) startTimer(currentAttempt);
+  syncSelectAllState();
   updateUserUI();
 }
 

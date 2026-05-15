@@ -36,6 +36,7 @@
         <div class="control-grid">
           <fieldset class="category-checks">
             <legend>Categories</legend>
+            <label class="select-all-category"><input type="checkbox" id="selectAllCategories"> Select all</label>
             <label><input type="checkbox" name="challengeCategory" value="coding" checked> Coding</label>
             <label><input type="checkbox" name="challengeCategory" value="fitness"> Fitness</label>
             <label><input type="checkbox" name="challengeCategory" value="study"> Study</label>
@@ -89,6 +90,18 @@
             Proof note
             <textarea id="proofNote" placeholder="What did you finish? Example: solved two-pointer array problem and wrote the approach."></textarea>
           </label>
+
+          <div class="proof-field">
+            <span>Proof photo</span>
+            <label class="upload-control" for="proofPhoto">
+              <span class="upload-icon" aria-hidden="true">+</span>
+              <span>
+                <strong>Upload proof photo</strong>
+                <small id="proofPhotoName">JPG, PNG, or WEBP. Camera opens on supported phones.</small>
+              </span>
+            </label>
+            <input class="visually-hidden" id="proofPhoto" type="file" accept="image/png,image/jpeg,image/webp" capture="environment">
+          </div>
 
           <div class="button-row">
             <button class="btn primary" id="getPageChallengeBtn">Get Challenge</button>
