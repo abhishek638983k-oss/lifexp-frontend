@@ -14,6 +14,19 @@ const categories = [
   "communication",
   "household"
 ];
+const categoryLabels = {
+  coding: "Coding",
+  fitness: "Fitness",
+  study: "Study",
+  health: "Health",
+  career: "Career",
+  creativity: "Creativity",
+  mindfulness: "Mindfulness",
+  finance: "Finance",
+  communication: "Communication",
+  household: "Household"
+};
+const GOOGLE_CLIENT_ID = localStorage.getItem("googleClientId") || window.LIFEXP_GOOGLE_CLIENT_ID || "";
 
 const storage = {
   get token() {
@@ -73,6 +86,10 @@ function escapeHTML(value = "") {
 
 function getAdminSecret() {
   return localStorage.getItem("adminSecret") || "";
+}
+
+function formatCategoryName(category) {
+  return categoryLabels[category] || category.charAt(0).toUpperCase() + category.slice(1);
 }
 
 function imageFileToDataUrl(file) {
@@ -192,6 +209,7 @@ function bindLogout() {
 function initAuthPage() {
   const form = document.getElementById("authForm");
   const signupBtn = document.getElementById("signupBtn");
+  const googleBtn = document.getElementById("googleLoginBtn");
   if (!form) return;
 
   if (storage.token) {
@@ -241,6 +259,77 @@ function initAuthPage() {
       setMessage("authMessage", error.message, "error");
     }
   });
+
+  async function handleGoogleCredential(credential) {
+    const data = await apiRequest("/api/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential })
+    });
+    storage.setSession(data.token, data.user);
+    location.href = "dashboard.html";
+  }
+
+  window.handleGoogleLogin = async (response) => {
+    try {
+      setMessage("authMessage", "Signing in with Google...");
+      await handleGoogleCredential(response.credential);
+    } catch (error) {
+      setMessage("authMessage", error.message, "error");
+    }
+  };
+
+  function initGoogleLogin() {
+    if (!googleBtn) return;
+
+    if (!GOOGLE_CLIENT_ID) {
+      googleBtn.addEventListener("click", () => {
+        setMessage("authMessage", "Google login needs a Google Client ID configured first.", "error");
+      });
+      return;
+    }
+
+    const loadGoogle = setInterval(() => {
+      if (!window.google?.accounts?.id) return;
+      clearInterval(loadGoogle);
+      googleBtn.innerHTML = "";
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: window.handleGoogleLogin
+      });
+      window.google.accounts.id.renderButton(googleBtn, {
+        theme: "outline",
+        size: "large",
+        width: googleBtn.offsetWidth || 280
+      });
+    }, 100);
+  }
+
+  initGoogleLogin();
+}
+
+function initPasswordChange() {
+  const form = document.getElementById("changePasswordForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    try {
+      setMessage("passwordMessage", "Updating password...");
+      const data = await apiRequest("/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({
+          currentPassword: form.currentPassword.value,
+          newPassword: form.newPassword.value
+        })
+      });
+      storage.updateUser(data.user);
+      form.reset();
+      setMessage("passwordMessage", data.message || "Password updated.", "success-text");
+    } catch (error) {
+      setMessage("passwordMessage", error.message, "error");
+    }
+  });
 }
 
 function getInitialCategory() {
@@ -264,16 +353,23 @@ function updateUserUI() {
   const fields = {
     xpDisplay: user.xp ?? 0,
     levelDisplay: user.level ?? 1,
-    streakDisplay: user.streak ?? 0,
-    codingXp: `${categoryXP.coding ?? 0} XP`,
-    fitnessXp: `${categoryXP.fitness ?? 0} XP`,
-    studyXp: `${categoryXP.study ?? 0} XP`
+    streakDisplay: user.streak ?? 0
   };
 
   Object.entries(fields).forEach(([id, value]) => {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   });
+
+  const categoryProgressList = document.getElementById("categoryProgressList");
+  if (categoryProgressList) {
+    categoryProgressList.innerHTML = categories.map((category) => `
+      <div class="progress-row">
+        <span>${formatCategoryName(category)}</span>
+        <strong>${categoryXP[category] ?? 0} XP</strong>
+      </div>
+    `).join("");
+  }
 }
 
 function renderChallenge(challenge) {
@@ -977,6 +1073,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupMobileNav();
   bindLogout();
   initAuthPage();
+  initPasswordChange();
   initDashboard();
   initChallengePage();
   initLeaderboard();

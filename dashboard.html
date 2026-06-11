@@ -81,19 +81,29 @@
             </div>
           </div>
           <div class="progress-list">
-            <div class="progress-row">
-              <span>Coding</span>
-              <strong id="codingXp">0 XP</strong>
-            </div>
-            <div class="progress-row">
-              <span>Fitness</span>
-              <strong id="fitnessXp">0 XP</strong>
-            </div>
-            <div class="progress-row">
-              <span>Study</span>
-              <strong id="studyXp">0 XP</strong>
+            <div id="categoryProgressList"></div>
+          </div>
+        </article>
+
+        <article class="form-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Account</p>
+              <h2>Change Password</h2>
             </div>
           </div>
+          <form id="changePasswordForm" class="form-stack">
+            <label for="currentPassword">Current password</label>
+            <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" placeholder="Enter current password">
+
+            <label for="newPassword">New password</label>
+            <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required>
+
+            <div class="button-row">
+              <button class="btn secondary" type="submit">Update Password</button>
+            </div>
+          </form>
+          <p id="passwordMessage" class="message" role="status"></p>
         </article>
       </section>
     </main>

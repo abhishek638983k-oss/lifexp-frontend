@@ -11,10 +11,10 @@
     <section class="brand-panel">
       <p class="eyebrow">LifeXP</p>
       <h1>Level up real life.</h1>
-      <p class="brand-copy">Pick a category, complete challenges, earn XP, and keep your daily streak alive.</p>
+      <p class="brand-copy">Pick from coding, fitness, study, health, career, creativity, mindfulness, finance, communication, and household challenges.</p>
       <div class="preview-stats" aria-label="LifeXP stats preview">
         <div>
-          <span>3</span>
+          <span>10</span>
           <small>Categories</small>
         </div>
         <div>
@@ -45,10 +45,16 @@
         </div>
       </form>
 
+      <div class="auth-divider"><span>or</span></div>
+      <div id="googleLoginBtn" class="google-login-box">
+        <button class="btn secondary full-width" type="button">Continue with Google</button>
+      </div>
+
       <p id="authMessage" class="message" role="status"></p>
     </section>
   </main>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="script.js"></script>
 </body>
 </html>

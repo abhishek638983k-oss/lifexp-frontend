@@ -484,6 +484,11 @@ textarea {
   margin-top: 22px;
 }
 
+.progress-list > div {
+  display: grid;
+  gap: 12px;
+}
+
 .progress-row {
   display: flex;
   justify-content: space-between;
@@ -492,6 +497,29 @@ textarea {
   border-radius: 8px;
   background: #111419;
   border: 1px solid var(--line);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.google-login-box {
+  min-height: 44px;
 }
 
 .table-panel {

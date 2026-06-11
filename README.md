@@ -116,6 +116,23 @@ GEMINI_MODEL=gemini-1.5-flash
 
 The API key stays on the backend. The frontend calls your backend, and your backend calls Gemini through the official `generateContent` REST API.
 
+## Google Login
+
+Google login is supported, but it needs a Google OAuth Client ID configured in two places:
+
+```text
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+```
+
+Set that variable on the backend Render service. On the frontend, expose the same client ID before `script.js` loads, or set it during local testing:
+
+```js
+localStorage.setItem("googleClientId", "your-google-oauth-client-id");
+location.reload();
+```
+
+Add your deployed frontend URL and `http://127.0.0.1:5500` as authorized JavaScript origins in Google Cloud Console.
+
 ## Local Backend Testing
 
 By default the frontend uses:
