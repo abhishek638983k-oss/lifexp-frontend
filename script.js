@@ -1,5 +1,5 @@
 const API_BASE = localStorage.getItem("apiBase")
-  || (["127.0.0.1", "localhost"].includes(location.hostname)
+  || (["127.0.0.1", "localhost"].includes(location.hostname) || location.protocol === "file:"
     ? "http://127.0.0.1:5000"
     : "https://lifexp-backend.onrender.com");
 const categories = [
@@ -117,13 +117,26 @@ async function apiRequest(path, options = {}) {
     headers.Authorization = `Bearer ${storage.token}`;
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers
+    });
+  } catch (error) {
+    throw new Error(`Cannot reach backend at ${API_BASE}. Start the backend or check the deployed API.`);
+  }
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
+  let data = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { message: text };
+    }
+  }
 
   if (!response.ok) {
     throw new Error(data?.message || data?.error || "Request failed");
